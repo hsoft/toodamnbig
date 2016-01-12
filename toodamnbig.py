@@ -7,6 +7,7 @@
 
 import argparse
 from urllib.request import urlopen
+from urllib.error import HTTPError
 import json
 import tarfile
 import io
@@ -65,9 +66,17 @@ def get_flat_deps(pkg, ignore=None):
 
 def main():
     args = get_parser().parse_args()
-    mainpkg = NpmPkg(args.pkgname)
+    try:
+        mainpkg = NpmPkg(args.pkgname)
+    except HTTPError as e:
+        print("Can't fetch {}. Does it even exist?".format(e.filename))
+        return
     print("Getting dependencies...")
-    deps = get_flat_deps(mainpkg)
+    try:
+        deps = get_flat_deps(mainpkg)
+    except HTTPError as e:
+        print("Can't fetch {}. Could be a broken dependency.".format(e.filename))
+        return
     allpkgs = {mainpkg} | deps
     sloc = 0
     for pkg in allpkgs:
