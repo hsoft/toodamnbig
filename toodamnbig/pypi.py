@@ -33,8 +33,8 @@ def extract_requires_from_sdist(archive):
             break
     else:
         return set()
-    if next(tokgen) != EQUAL: fail()
-    if next(tokgen) not in (LSQB, LPAR): fail()
+    if next(tokgen).exact_type != EQUAL: fail()
+    if next(tokgen).exact_type not in (LSQB, LPAR): fail()
     result = set()
     # .. and then we're on for the deplist
     for tok in tokgen:
